@@ -10,25 +10,25 @@ namespace Gauss
     {
         static void Main(string[] args)
         {
-            //double[,] A = new double[,] { { 1, 2, -1 }, {2, -1, 3}, {-1, 3, 1} };
+            //double[,] A = new double[,] { { 1, 2, -1 }, { 2, -1, 3 }, { -1, 3, 1 } };
 
             //List<double> b = new List<double>();
             //b.Add(4);
             //b.Add(3);
             //b.Add(6);
 
-            //double[,] A = new double[,] { { 1, -2, 5 }, { 1, -1, 3 }, { 3, -6, -1 } };
-
-            //List<double> b = new List<double>();
-            //b.Add(9);
-            //b.Add(2);
-            //b.Add(25);
-
-            double[,] A = new double[,] { { Math.Pow(10,-17), 1 }, { 1, 1 } };
+            double[,] A = new double[,] { { 1, -2, 5 }, { 1, -1, 3 }, { 3, -6, -1 } };
 
             List<double> b = new List<double>();
-            b.Add(1);
+            b.Add(9);
             b.Add(2);
+            b.Add(25);
+
+            //double[,] A = new double[,] { { Math.Pow(10,-17), 1 }, { 1, 1 } };
+
+            //List<double> b = new List<double>();
+            //b.Add(1);
+            //b.Add(2);
 
             //double[,] A = new double[,] { { 16, 136 }, { 136, 1496} };
 
@@ -60,23 +60,25 @@ namespace Gauss
             {
                 for(int i=k+1; i < n; ++i)
                 {
-                    //A[k,k] a k-adik pivotelem, mely alap esetben nem megfelelő, ha 0 értékű.
-                    // Részleges főelemkiválasztással adjuk meg A[k,k] értékét.
-                    double akk = Math.Abs(A[k, k]);
-                    int maxIndex = k;
-
-                    for(int g=k;g<n;++g)
+                    // Ha a k-adik pivotelem 0, akkor részleges főelemkiválasztást hajtunk végre.
+                    if(A[k, k] == 0)
                     {
-                        if(Math.Abs(A[k,g])>akk)
-                        {
-                            akk = Math.Abs(A[g, k]);
-                            maxIndex = g;
-                        }
-                    }
-                    //Sorcsere : maxindex és a k sorok cseréje
+                        //A[k,k] a k-adik pivotelem, mely alap esetben nem megfelelő, ha 0 értékű.
+                        // Részleges főelemkiválasztással adjuk meg A[k,k] értékét.
+                        double maxAkk = Math.Abs(A[k, k]);
+                        int maxIndex = k;
 
-                    RowSwap(maxIndex,k, ref A);
-                    b.Reverse();
+                        for (int g = k; g < n; ++g)
+                        {
+                            if (Math.Abs(A[k, g]) > maxAkk)
+                            {
+                                maxAkk = Math.Abs(A[g, k]);
+                                maxIndex = g;
+                            }
+                        }
+                        //Sorcsere : maxindex és a k sorok cseréje ( A mátrixban és a b vektorban )
+                        RowSwap(maxIndex, k, ref A, ref b);
+                    }
 
                     double gammaik = A[i, k] / A[k,k];
 
@@ -93,28 +95,25 @@ namespace Gauss
 
             return x;
         }
+        #endregion
 
-        private static void RowSwap(int maxIndex, int k, ref double[,] A)
+        #region Sorok cseréje ( A mátrix és b vektor esetén )
+        private static void RowSwap(int maxIndex, int k, ref double[,] A, ref List<double> b)
         {
             List<double> maxIndexRow = new List<double>();
             List<double> kIndexRow = new List<double>();
 
-            for (int i = maxIndex; i<A.GetLength(0);++i)
+            for (int j = 0; j < A.GetLength(0); j++)
             {
-                for (int j = 0; j < A.GetLength(0); j++)
-                {
-                    maxIndexRow.Add(A[i, j]);
-                }
+                maxIndexRow.Add(A[maxIndex, j]);
             }
 
-            for (int i = k; i < A.GetLength(0); ++i)
+            for (int j = 0; j < A.GetLength(0); j++)
             {
-                for (int j = 0; j < A.GetLength(0); j++)
-                {
-                    kIndexRow.Add(A[i, j]);
-                }
+                kIndexRow.Add(A[k, j]);
             }
 
+            // Sorcsere az A mátrixban
             for (int i = 0; i < A.GetLength(0); ++i)
             {
                 for (int j = 0; j < A.GetLength(0); j++)
@@ -126,7 +125,23 @@ namespace Gauss
                    else if (i==k)
                    {
                         A[i, j] = maxIndexRow[j];
-                    }
+                   }
+                }
+            }
+
+            // b vektor elemeinek cseréje
+            double kIndexnItem = b[k];
+            double maxIndexbItem = b[maxIndex];
+
+            for (int i = 0; i < b.Count; i++)
+            {
+                if (i == k)
+                {
+                    b[i] = maxIndexbItem;
+                }
+                else if (i == maxIndex)
+                {
+                    b[i] = kIndexnItem;
                 }
             }
         }
