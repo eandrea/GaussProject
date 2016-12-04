@@ -24,7 +24,7 @@ namespace Gauss
             b.Add(2);
             b.Add(25);
 
-            //double[,] A = new double[,] { { Math.Pow(10,-17), 1 }, { 1, 1 } };
+            //double[,] A = new double[,] { { Math.Pow(10, -17), 1 }, { 1, 1 } };
 
             //List<double> b = new List<double>();
             //b.Add(1);
@@ -61,23 +61,12 @@ namespace Gauss
                 for(int i=k+1; i < n; ++i)
                 {
                     // Ha a k-adik pivotelem 0, akkor részleges főelemkiválasztást hajtunk végre.
-                    if(A[k, k] == 0)
+                    // Vagy 0 vagy 0-hoz közeli
+                    if(A[k, k] == 0 || A[k, k] < Math.Pow(10,-1))
                     {
-                        //A[k,k] a k-adik pivotelem, mely alap esetben nem megfelelő, ha 0 értékű.
-                        // Részleges főelemkiválasztással adjuk meg A[k,k] értékét.
-                        double maxAkk = Math.Abs(A[k, k]);
-                        int maxIndex = k;
-
-                        for (int g = k; g < n; ++g)
-                        {
-                            if (Math.Abs(A[k, g]) > maxAkk)
-                            {
-                                maxAkk = Math.Abs(A[g, k]);
-                                maxIndex = g;
-                            }
-                        }
-                        //Sorcsere : maxindex és a k sorok cseréje ( A mátrixban és a b vektorban )
-                        RowSwap(maxIndex, k, ref A, ref b);
+                        //Részleges főelemkiválasztás (bemenő paraméterek: A együttható mátrix, b vektor, n a sorok száma
+                        // és k az aktuális lépés.
+                        PartialPivoting(ref A, ref b, n, k);
                     }
 
                     double gammaik = A[i, k] / A[k,k];
@@ -91,9 +80,32 @@ namespace Gauss
                 }
             }
 
+            //Visszahelyettesítés
             x = Replacement(A, b, n);
 
+            //Eredményvektor
             return x;
+        }
+        #endregion
+
+        #region Részleges főelemkiválasztás
+        private static void PartialPivoting(ref double[,] A, ref List<double> b, int n, int k)
+        {
+            //A[k,k] a k-adik pivotelem, mely alap esetben nem megfelelő, ha 0 értékű.
+            // Részleges főelemkiválasztással adjuk meg A[k,k] értékét.
+            double maxAkk = Math.Abs(A[k, k]);
+            int maxIndex = k;
+
+            for (int g = k; g < n; ++g)
+            {
+                if (Math.Abs(A[k, g]) > maxAkk)
+                {
+                    maxAkk = Math.Abs(A[g, k]);
+                    maxIndex = g;
+                }
+            }
+            //Sorcsere : maxindex és a k sorok cseréje ( A mátrixban és a b vektorban )
+            RowSwap(maxIndex, k, ref A, ref b);
         }
         #endregion
 
@@ -148,7 +160,7 @@ namespace Gauss
         #endregion
 
         #region Visszahelyettesítés
-        public static List<double> Replacement(double[,] A, List<double> b, int n)
+        private static List<double> Replacement(double[,] A, List<double> b, int n)
         {
             //x a megoldásvektorunk
             List<double> x = new List<double>();
