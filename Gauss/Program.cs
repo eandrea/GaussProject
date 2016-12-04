@@ -43,7 +43,6 @@ namespace Gauss
             {
                 Console.WriteLine("x{0}= {1}", i, item);
                 ++i;
-
             }
             Console.ReadKey();
         }
@@ -60,9 +59,8 @@ namespace Gauss
             {
                 for(int i=k+1; i < n; ++i)
                 {
-                    // Ha a k-adik pivotelem 0, akkor részleges főelemkiválasztást hajtunk végre.
-                    // Vagy 0 vagy 0-hoz közeli
-                    if(A[k, k] == 0 || A[k, k] < Math.Pow(10,-1))
+                    // Részleges főelemkiválasztást hajtunk végre, ha a k-adik pivotelem 0 vagy 0-hoz közeli.
+                    if (A[k, k] == 0 || A[k, k] < Math.Pow(10,-1))
                     {
                         //Részleges főelemkiválasztás (bemenő paraméterek: A együttható mátrix, b vektor, n a sorok száma
                         // és k az aktuális lépés.
